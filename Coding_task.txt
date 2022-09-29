@@ -1,0 +1,87 @@
+package pack1
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions._
+import sys.process._
+
+object obj {
+
+
+
+
+def main(args:Array[String]):Unit={
+
+
+		println("====started=====")
+
+		val conf = new SparkConf().setAppName("first").setMaster("local[*]")
+		           
+		val sc = new SparkContext(conf)
+		
+		sc.setLogLevel("ERROR")
+		
+		val spark = SparkSession
+		.builder()
+		.config(conf)
+		.getOrCreate()
+		import spark.implicits._
+
+val df = spark
+		.read
+		.format("CSV")
+		.option("header","true")
+		.load("file:///F:/Backend Coding Task/data/movies.csv")
+  
+   
+   df.createOrReplaceTempView("movies")
+   
+   val df1 = spark.sql("select tconst,primaryTitle,runtimeMinutes,genres from movies order by runtimeMinutes desc limit 10")
+  df1.show()
+
+  df1.write.format("json").save("file:///F:/Backend Coding Task/longest-duration-movies.json")
+  
+
+
+val df2 = spark
+		.read
+		.format("CSV")
+		.option("header","true")
+		.load("file:///F:/Backend Coding Task/data/ratings.csv")
+  
+		df2.createOrReplaceTempView("ratings")
+		df2.show()
+		
+		val df3 = spark.sql("select movies.tconst,movies.primaryTitle,movies.genres,ratings.averageRating from movies INNER JOIN ratings ON movies.tconst=ratings.tconst where averageRating>6.0 order by averageRating desc ")
+		df3.show()
+		
+		
+		df3.write.format("json").save("file:///F:/Backend Coding Task/top-rated-movies")
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+}
+}
